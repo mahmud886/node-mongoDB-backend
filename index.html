@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node Mongo Client</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+
+
+</head>
+<body>
+    <!-- =========================BODY========================= -->
+
+    <div class="container text-center">
+        <h1 style="text-transform: uppercase;">My Node MongoDb Client Site..</h1>
+        <p id="userName" style="color: red;"></p>
+
+        <div class="container">
+            <input type="text" class="form-control" id="name" placeholder="Name"> <br>
+            <input type="text" class="form-control" id="price" placeholder="Price"> <br>
+            <input type="text" class="form-control" id="stock" placeholder="Stock">
+           <br> <button class="btn btn-primary" id="addProduct">ADD PRODUCT</button>
+        </div>
+        <p style="display: none; color: green;" id="successMessage">
+            <small>Product Added Successfully</small>
+            <br>
+            <br>
+        </p>
+        <div>
+            <br>
+            <br>
+            <h1 style="text-transform: uppercase;">Load From Database</h1>
+            <ul id="product-list">
+
+            </ul>
+        </div>
+    </div>
+
+ <!-- =========================BODY========================= -->
+
+
+ <!-- =========================SCRIPT========================= -->
+    <script>
+
+        //GET DATA
+        fetch('http://localhost:4200/products')
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+            displayProducts(data);
+
+            // document.getElementById('userName').innerText = data.name;
+        });
+
+        function displayProducts(data){
+            const productContainer = document.getElementById('product-list')
+            for (let i = 0; i < data.length; i++) {
+                const product = data[i];
+                // const item = document.createElement('li');
+                // item.innerText = `${product.name} : $ ${product.price} : available ${product.stock}`;
+                // productContainer.appendChild(item);
+                appendProduct(product, productContainer);
+            }
+        }
+
+        function appendProduct(product, productContainer){
+                const item = document.createElement('li');
+                item.innerText = `${product.name} : $ ${product.price} : available ${product.stock}`;
+                productContainer.appendChild(item);
+        }
+
+        //POST DATA TO THE SERVER USING BUTTON
+        const btnAddUser = document.getElementById('addProduct');
+        btnAddUser.addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+            const stock = document.getElementById('stock').value;
+            const product = {name, price, stock};
+            console.log(product);
+            
+            //post
+            fetch('http://localhost:4200/addProduct',{
+                method: 'POST',              //Posting method
+                body: JSON.stringify(product), //Posting Cum
+                headers:{
+                    "Content-type": "application/json; charset=UTF-8" //types of data what is send
+                }
+            })
+            .then(res => res.json())         //data convert to json
+            .then(data => {
+                updateProduct(data)  //Update to data to paragraph
+                //Clean
+                document.getElementById('name').value = '';
+                document.getElementById('price').value = '';
+                document.getElementById('stock').value = '';
+                
+                const success = document.getElementById('successMessage')
+                success.style.display = 'block';
+                setTimeout(() => {
+                    success.style.display = 'none';
+                }, 5000)
+            })  
+        })
+
+        //Update User Paragraph Tag...............///
+
+        function updateProduct(product){
+            const productContainer = document.getElementById('product-list')
+            appendProduct(product, productContainer);
+            document.getElementById('userName').innerText = product.name;
+        }
+    </script>
+
+
+<!-- =========================SCRIPT========================= -->
+</body>
+</html>
